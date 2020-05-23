@@ -1,0 +1,219 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.plot(x,y)
+plt.show()
+
+figure方法？
+figure就是一个大窗口
+plt.figure()
+下面的数据属于第一个figure
+
+第二个figure			                     下面数据属于第二个figure
+plt.figure(num=3，figsize(8,5))                                       指定figure名称为figure2   长8高5
+plt.plot(x,y2)                                                                   第一条线
+plt.plot(x,y1,color='red',linewidth=1.0,linestyle='--')        第二条红色虚线
+
+
+设置坐标轴axis
+设置坐标轴的取值范围
+plt.xlim((-1,2))
+plt.ylim((-2,2))
+
+xlabel
+ylabel
+
+plt.xlabel('')
+plt.ylabel('')
+
+new_ticks=np.linespace(-1,2,5)
+plt.xticks(new_ticks)                                                        x的刻度
+plt.ytick([-2,-1.8,-1,1.22,3],
+             ['really bad','bad','normal','good','really good'])   y刻度与文字相对应
+改变字体
+plt.ytick([-2,-1.8,-1,1.22,3], 
+             [r'$really\ bad$',r'$bad$',r'$normal$',r'$good$',r'$really\ good$'])   r代表正则，$代表美文的形式，空格是打不出来的得加上\才能实现空格的效果   \alpha代表数学形式的alpha
+
+修改坐标轴的位置？
+
+#gca ='get current axis' 获得当前轴
+ax=plt.gca()
+//ax.spines['right']  右边的脊梁
+ax.spines['right'].set_color('none')   右边的轴消失
+ax.spines['top'].set_color('none')      上面的轴消失
+ax.xaxis.set_ticks_position('bottom')  使用bottom轴来作为x轴
+ax.spines['bottom'].set_position(('data',0))   bottom轴的位置在坐标0处
+plt.show()
+
+plt.legent(loc='upper right')            显示方框图例    
+plt.legend(handles=[l1, l2], labels=['up', 'down'],  loc='best')
+
+plt.plot([x0, x0,], [0, y0,], 'k--', linewidth=2.5)            k--代表黑色，虚线
+
+
+annotation                                    标注，在线条上标注这个点代表什么东西，添加注解
+plt.annotate(r'$2x+1=%s$' % y0, xy=(x0, y0), xycoords='data', xytext=(+30, -30),
+             textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle='->', connectionstyle="arc3,rad=.2")
+
+plt.text(-3.7, 3, r'$This\ is\ the\ some\ text. \mu\ \sigma_i\ \alpha_t$',
+         fontdict={'size': 16, 'color': 'r'})
+
+
+坐标轴数据挡住了如何处理？
+for label in ax.get_xticklabels() + ax.get_yticklabels():
+    label.set_fontsize(12)
+    # set zorder for ordering the plot in plt 2.0.2 or higher
+    label.set_bbox(dict(facecolor='white', edgecolor='none', alpha=0.8, zorder=2))      alpha=0.8,代表透明度
+
+
+散点图？
+plt.scatter(X, Y, s=75, c=T, alpha=.5)          c代表颜色         alpha代表透明度
+plt.xticks(())                                                # ignore xticks
+
+
+条形图？
+plt.bar(X, -Y2, facecolor='#ff9999', edgecolor='white')
+
+等高线？
+def f(x,y):
+    # the height function
+    return (1 - x / 2 + x**5 + y**3) * np.exp(-x**2 -y**2)
+
+n = 256
+x = np.linspace(-3, 3, n)
+y = np.linspace(-3, 3, n)
+X,Y = np.meshgrid(x, y)                                                      x,y绑定成网格的输入值
+# use plt.contourf to filling contours
+# X, Y and value for (X,Y) point
+plt.contourf(X, Y, f(X, Y), 8, alpha=.75, cmap=plt.cm.hot)   (8代表等高线的段数8代表10部分，cmap=plt.cm.hot代表color map 数字和颜色对应)
+
+# use plt.contour to add contour lines
+C = plt.contour(X, Y, f(X, Y), 8, colors='black', linewidth=.5)    （实际上是画等高线的线）
+# adding label
+plt.clabel(C, inline=True, fontsize=10)                                   （画等高线的数值，inline代表等高线里面）
+
+
+matplot中图像显示
+plt.imshow(a, interpolation='nearest', cmap='bone', origin='lower')      origin='lower'对应图像方向
+plt.colorbar(shrink=.92)                                                                         添加标注  shrink代表压缩比例
+
+
+画3D图像？
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure()
+ax = Axes3D(fig)
+# X, Y value
+X = np.arange(-4, 4, 0.25)
+Y = np.arange(-4, 4, 0.25)
+X, Y = np.meshgrid(X, Y)
+R = np.sqrt(X ** 2 + Y ** 2)
+# height value
+Z = np.sin(R)
+
+ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap('rainbow'))             画3D的方式
+"""
+============= ================================================
+        Argument      Description
+        ============= ================================================
+        *X*, *Y*, *Z* Data values as 2D arrays
+        *rstride*     Array row stride (step size), defaults to 10
+        *cstride*     Array column stride (step size), defaults to 10
+        *color*       Color of the surface patches
+        *cmap*        A colormap for the surface patches.
+        *facecolors*  Face colors for the individual patches
+        *norm*        An instance of Normalize to map values to colors
+        *vmin*        Minimum value to map
+        *vmax*        Maximum value to map
+        *shade*       Whether to shade the facecolors
+        ============= ================================================
+"""
+
+# I think this is different from plt12_contours
+ax.contourf(X, Y, Z, zdir='z', offset=-2, cmap=plt.get_cmap('rainbow'))             画等高线图 zdir='z'代表从z轴压下去
+"""
+==========  ================================================
+        Argument    Description
+        ==========  ================================================
+        *X*, *Y*,   Data values as numpy.arrays
+        *Z*
+        *zdir*      The direction to use: x, y or z (default)
+        *offset*    If specified plot a projection of the filled contour
+                    on this position in plane normal to zdir
+        ==========  ================================================
+"""
+
+ax.set_zlim(-2, 2)                                     设置z轴的范围
+
+plt.show()
+
+
+如何在一个figure中画多个小图？
+plt.subplot(234)
+plt.subplot(2,3,4)
+
+第二种subplot的方法，subplot分格显示
+import matplotlib.gridspec as gridspec
+
+ax1 = plt.subplot2grid((3, 3), (0, 0), colspan=3)   3行3列，colspan=3列跨度为3  rowspan代表行跨度
+
+ax1.set_title('ax1_title')   设置标题
+
+第三种方法
+plt.figure()
+gs = gridspec.GridSpec(3, 3)
+# use index from 0
+ax6 = plt.subplot(gs[0, :])
+ax7 = plt.subplot(gs[1, :2])
+ax8 = plt.subplot(gs[1:, 2])
+ax9 = plt.subplot(gs[-1, 0])
+ax10 = plt.subplot(gs[-1, -2])
+
+# method 3: easy to define structure
+####################################
+f, ((ax11, ax12), (ax13, ax14)) = plt.subplots(2, 2, sharex=True, sharey=True)
+ax11.scatter([1,2], [1,2])
+
+plt.tight_layout()
+
+
+第四种方法
+返回f指的是figure的值
+f, ((ax11, ax12), (ax13, ax14)) = plt.subplots(2, 2, sharex=True, sharey=True)   sharex=True, sharey=True代表共享x轴和y轴
+ax11.scatter([1,2], [1,2])
+
+
+在大图中画小图？图中图
+fig = plt.figure()
+left, bottom, width, height = 0.1, 0.1, 0.8, 0.8    都是百分比
+ax1 = fig.add_axes([left, bottom, width, height])  # 设置这个figure的大小
+
+ax2 = fig.add_axes([0.2, 0.6, 0.25, 0.25])  # inside axes  第二个图
+ax2.plot(y, x, 'b')
+ax2.set_xlabel('x')
+ax2.set_ylabel('y')
+ax2.set_title('title inside 1')
+
+
+# different method to add axes
+####################################
+plt.axes([0.6, 0.2, 0.25, 0.25])
+plt.plot(y[::-1], x, 'g')                         y[::-1]代表逆序
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('title inside 2')
+
+
+次坐标，共享x坐标但是不同y的含义？
+fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()    # mirror the ax1  
+
+
+以动画的形式展现数据？
+from matplotlib import animation
+ani = animation.FuncAnimation(fig=fig, func=animate, frames=100, init_func=init,
+                              interval=20, blit=False)
+
+frames=100代表100个时间点再重新循环，init_func=init代表最开始动画那一整。
+ interval=20代表隔20毫秒更新一次， blit=False代表整张图片全部更新， blit=True代表只更新变化的数据
+func=animate,函数中有一个值处于0到frames之间
