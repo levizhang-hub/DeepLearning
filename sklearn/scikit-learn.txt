@@ -1,0 +1,149 @@
+import numpy as np
+from sklearn import datasets
+form sklearn.model_section import train_test_split
+form sklearn.neighbors import KNerghborsClassifier
+
+iris = datasets.load_iris()
+iris_X = iris.data
+iris_y = iris.target
+
+#print(iris_X[:2, :])
+#print(iris_y)
+
+X_train, X_test, y_train, y_test = train_test_split(       //将数据进行分割成不同的集合，同时会对数据进行打乱
+    iris_X, iris_y, test_size=0.3)
+
+#print(y_train)
+
+knn = KNeighborsClassifier()                      定义模型
+knn.fit(X_train, y_train)                               训练模型
+print(knn.predict(X_test))                            训练完毕以后使用测试集来进行预测
+
+
+sklearn中的datasets数据集？
+创造数据
+X, y = datasets.make_regression(n_samples=100, n_features=1, n_targets=1, noise=10)
+plt.scatter(X, y)
+plt.show()
+
+model常用的属性和功能？
+model = LinearRegression()
+model.fit(data_X, data_y)
+print(model.predict(data_X[:4, :]))
+print(model.coef_)                                                          输出每个属性的参数
+print(model.intercept_)                                                   和y轴的交点
+print(model.get_params())                                              拿出定义model的时候的参数
+print(model.score(data_X, data_y)) # R^2 coefficient of determination                   对训练到的model进行打分
+
+normalization归一化？
+在sklearn中normalization也叫作scale
+from sklearn import preprocessing
+from sklearn.svm import SVC   支持向量机
+from sklearn.cross_validation import train_test_split                                    将数据集分成训练集和测试集
+from sklearn.datasets.samples_genetrator import make_classification         生成分类数据
+X=preprocessing.scales(X)             0~1
+X=preprocessing.minmax_scales(X,feature_range=(0,1))                可调范围的数据归一化
+clf=SVC()
+clf.fit(X_train,y_train)
+clf.score(X_test,y_test)                                                                   得分精确度
+通过scale和非scale对比，归一化后精确度明显提高
+
+交叉验证，选择更好的模型来进行学习？训练数据70%测试数据30%
+在分类问题上看准确率，在回归问题上连续的值看r2 
+# test train split #
+# this is cross_val_score #
+# this is how to use cross_val_score to choose model and configs #
+交叉验证用于神经网络或则其他机器学习的调参，来选择具体的模型，对比模型好不好
+from sklearn.cross_validation import cross_val_score
+knn = KNeighborsClassifier(n_neighbors=5)
+scores = cross_val_score(knn, X, y, cv=5, scoring='accuracy')    X和y会自动的分成5组，每一组都不一样
+print(scores)                                                                            会打印每一组的成绩总共有5个
+scores.mean()                                                                           5个准确率的均值
+
+如何选择参数K为5好还是10好还是30号？
+k_range = range(1, 31)
+k_scores = []
+for k in k_range:
+    knn = KNeighborsClassifier(n_neighbors=k)
+##    loss = -cross_val_score(knn, X, y, cv=10, scoring='mean_squared_error')            # for regression  
+    scores = cross_val_score(knn, X, y, cv=10, scoring='accuracy')                               # for classification     cv=10代表是分成了10个set
+    k_scores.append(scores.mean())
+plt.plot(k_range, k_scores)
+
+
+
+交叉验证查看overfitting的问题？
+from __future__ import print_function
+from sklearn.learning_curve import  learning_curve    用曲线来可视化我学习的整个过程
+from sklearn.datasets import load_digits
+from sklearn.svm import SVC
+import matplotlib.pyplot as plt
+import numpy as np
+digits = load_digits()
+X = digits.data
+y = digits.target
+print(X.shape)
+train_sizes, train_loss, test_loss= learning_curve(
+        SVC(gamma=0.01), X, y, cv=10, scoring='neg_mean_squared_error',
+        train_sizes=[0.1, 0.25, 0.5, 0.75, 1])                                                记录的点再10%  25% 记录下总共5个点，分成10组来进行交叉验证，train_sizes代表需要记录的点的位置
+train_loss_mean = -np.mean(train_loss, axis=1)                                     train_loss为5行10列，5个点，10个训练误差 train_loss_mean 生成5个平均训练误差
+print(train_loss.shape)
+test_loss_mean = -np.mean(test_loss, axis=1)
+
+plt.plot(train_sizes, train_loss_mean, 'o-', color="r",
+             label="Training")
+plt.plot(train_sizes, test_loss_mean, 'o-', color="g",
+             label="Cross-validation")
+
+如何调整参数使得不那么overfitting？可以通过validation_curve更简单的来选取model中的某个参数
+from __future__ import print_function
+#from sklearn.learning_curve import  validation_curve
+from sklearn.datasets import load_digits
+from sklearn.svm import SVC
+import matplotlib.pyplot as plt
+from sklearn.model_selection import validation_curve
+import numpy as np
+
+digits = load_digits()
+X = digits.data
+y = digits.target
+param_range = np.logspace(-6, -2.3, 5)
+train_loss, test_loss = validation_curve(                                                            //可以允许改变参数
+        SVC(), X, y, param_name='gamma', param_range=param_range, cv=10,
+
+        scoring='neg_mean_squared_error')
+train_loss_mean = -np.mean(train_loss, axis=1)
+test_loss_mean = -np.mean(test_loss, axis=1)
+
+plt.plot(param_range, train_loss_mean, 'o-', color="r",
+             label="Training")
+plt.plot(param_range, test_loss_mean, 'o-', color="g",
+             label="Cross-validation")
+
+plt.xlabel("gamma")
+plt.ylabel("Loss")
+plt.legend(loc="best")
+plt.show()
+
+
+为了更好的使用模型需要将训练完之后的模型保存，以后要预测的时候再加载进来？
+使用python自带的pickle来保存
+# method 1: pickle
+import pickle
+# save
+with open('save/clf.pickle', 'wb') as f:
+    pickle.dump(clf, f)
+# restore
+with open('save/clf.pickle', 'rb') as f:
+   clf2 = pickle.load(f)
+   print(clf2.predict(X[0:1]))
+
+方法二：sklearn中自己的方法
+# method 2: joblib
+from sklearn.externals import joblib
+# Save
+joblib.dump(clf, 'save/clf.pkl')
+# restore
+clf3 = joblib.load('save/clf.pkl')
+print(clf3.predict(X[0:1]))
+
