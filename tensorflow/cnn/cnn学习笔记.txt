@@ -1,0 +1,25 @@
+卷积神经网络
+def conv2d(x, W):
+    # stride [1, x_movement, y_movement, 1]
+    # Must have strides[0] = strides[3] = 1
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+def max_pool_2x2(x):
+    # stride [1, x_movement, y_movement, 1]
+    return tf.nn.max_pool(x, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+
+## conv1 layer ##
+
+## conv2 layer ##
+
+## func1 layer ##
+
+## func2 layer ##
+
+x_image = tf.reshape(xs, [-1, 28, 28, 1])
+# print(x_image.shape)  # [n_samples, 28,28,1]
+
+
+W_conv1 = weight_variable([5,5, 1,32]) # patch 5x5, in size 1, out size 32
+
+输出=（输入-卷积核+2*p）/s  +1
